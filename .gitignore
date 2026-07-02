@@ -13,7 +13,6 @@ venv/
 
 # Node / Tailwind
 node_modules/
-package-lock.json
 
 # Editors / OS
 .vscode/
