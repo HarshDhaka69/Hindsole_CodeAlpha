@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load products_extras %}
+
+{% block title %}Order History — {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+  <h1 class="font-display text-fluid-3xl font-semibold text-neutral-900 dark:text-neutral-50 mb-8">Order History</h1>
+
+  {% if orders %}
+    <ul class="space-y-3">
+      {% for order in orders %}
+        <li>
+          <a href="{% url 'orders:detail' order.pk %}" class="block rounded-card border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-5 hover:border-accent-400 transition-colors">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <div>
+                <p class="text-fluid-sm font-semibold text-neutral-900 dark:text-neutral-50">{{ order.order_number }}</p>
+                <p class="text-fluid-xs text-neutral-500 dark:text-neutral-400">{{ order.created_at|date:"M j, Y" }} &middot; {{ order.items.count }} item{{ order.items.count|pluralize }}</p>
+              </div>
+              <div class="flex items-center gap-4">
+                <span class="text-fluid-xs font-medium rounded-full px-3 py-1
+                  {% if order.status == 'delivered' %}bg-success-500/10 text-success-600
+                  {% elif order.status == 'cancelled' %}bg-error-500/10 text-error-600
+                  {% else %}bg-accent-500/10 text-accent-600{% endif %}">
+                  {{ order.get_status_display }}
+                </span>
+                <span class="text-fluid-sm font-semibold text-neutral-900 dark:text-neutral-50">{{ order.total|currency }}</span>
+              </div>
+            </div>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="text-center py-16">
+      <p class="text-fluid-base text-neutral-600 dark:text-neutral-300">No orders yet.</p>
+      <a href="{% url 'products:list' %}" class="inline-block mt-4 rounded-soft bg-accent-500 hover:bg-accent-600 text-white font-semibold px-6 py-3 text-fluid-sm">Start shopping</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

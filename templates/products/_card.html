@@ -1,0 +1,45 @@
+{% load products_extras %}
+<a
+  href="{{ product.get_absolute_url }}"
+  class="group block rounded-card bg-white dark:bg-neutral-800 border border-neutral-150 dark:border-neutral-700 overflow-hidden hover:shadow-lifted transition-shadow duration-350 fade-in-up"
+  x-intersect.once="$el.classList.add('is-visible')"
+>
+  <div class="relative aspect-square bg-neutral-100 dark:bg-neutral-700 overflow-hidden">
+    {% with img=product.primary_image %}
+      {% if img %}
+        <img
+          src="{{ img.image.url }}"
+          alt="{{ img.alt_text|default:product.name }}"
+          loading="lazy"
+          class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-350"
+          width="400" height="400"
+        >
+      {% else %}
+        <div class="h-full w-full flex items-center justify-center text-neutral-400 dark:text-neutral-500 text-fluid-xs">No image</div>
+      {% endif %}
+    {% endwith %}
+
+    {% if product.is_sold_out %}
+      <span class="absolute top-3 left-3 rounded-full bg-neutral-900/85 text-white text-fluid-xs font-medium px-2.5 py-1">Sold out</span>
+    {% elif product.is_on_sale %}
+      <span class="absolute top-3 left-3 rounded-full bg-accent-500 text-white text-fluid-xs font-medium px-2.5 py-1">Sale</span>
+    {% else %}
+      {% with tag_slugs=product.tags.all|join:"," %}
+        {% if "limited-drop" in tag_slugs %}
+          <span class="absolute top-3 left-3 rounded-full bg-accent-500 text-white text-fluid-xs font-medium px-2.5 py-1">Limited Drop</span>
+        {% endif %}
+      {% endwith %}
+    {% endif %}
+  </div>
+
+  <div class="p-4">
+    <p class="text-fluid-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ product.brand.name }}</p>
+    <h3 class="mt-1 text-fluid-base font-medium text-neutral-900 dark:text-neutral-50 leading-snug">{{ product.name }}</h3>
+    <div class="mt-2 flex items-baseline gap-2">
+      <span class="text-fluid-base font-semibold text-neutral-900 dark:text-neutral-50">{{ product.price|currency }}</span>
+      {% if product.is_on_sale %}
+        <span class="text-fluid-sm text-neutral-400 line-through">{{ product.compare_at_price|currency }}</span>
+      {% endif %}
+    </div>
+  </div>
+</a>

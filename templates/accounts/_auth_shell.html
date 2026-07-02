@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mx-auto max-w-md px-4 sm:px-6 py-12 lg:py-20">
+  <div class="text-center mb-8">
+    <a href="{% url 'products:home' %}" class="font-display text-fluid-2xl font-semibold text-neutral-900 dark:text-neutral-50">HINDSOLE</a>
+  </div>
+  <div class="rounded-card border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-6 sm:p-8">
+    {% block auth_content %}{% endblock %}
+  </div>
+</div>
+{% endblock %}

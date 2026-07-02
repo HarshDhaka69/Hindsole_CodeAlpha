@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}{% if mode == "edit" %}Edit{% else %}Add{% endif %} Address — {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-lg px-4 sm:px-6 py-8 lg:py-12">
+  <h1 class="font-display text-fluid-2xl font-semibold text-neutral-900 dark:text-neutral-50 mb-6">
+    {% if mode == "edit" %}Edit Address{% else %}Add Address{% endif %}
+  </h1>
+
+  <form method="post" class="rounded-card border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-6 space-y-4">
+    {% csrf_token %}
+
+    <div>
+      <label for="{{ form.full_name.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">Full name</label>
+      {{ form.full_name }}
+    </div>
+    <div>
+      <label for="{{ form.line1.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">Address line 1</label>
+      {{ form.line1 }}
+    </div>
+    <div>
+      <label for="{{ form.line2.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">Address line 2 <span class="text-neutral-400">(optional)</span></label>
+      {{ form.line2 }}
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label for="{{ form.city.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">City</label>
+        {{ form.city }}
+      </div>
+      <div>
+        <label for="{{ form.state.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">State</label>
+        {{ form.state }}
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label for="{{ form.postal_code.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">Postal code</label>
+        {{ form.postal_code }}
+      </div>
+      <div>
+        <label for="{{ form.country.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">Country</label>
+        {{ form.country }}
+      </div>
+    </div>
+    <div>
+      <label for="{{ form.phone_number.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">Phone number</label>
+      {{ form.phone_number }}
+    </div>
+    <label class="flex items-center gap-2.5 text-fluid-sm text-neutral-700 dark:text-neutral-200">
+      {{ form.is_default }} Set as default address
+    </label>
+
+    <div class="flex gap-3 pt-2">
+      <button type="submit" class="rounded-soft bg-accent-500 hover:bg-accent-600 text-white font-semibold px-6 py-2.5 text-fluid-sm transition-colors">
+        Save address
+      </button>
+      <a href="{% url 'accounts:profile' %}" class="rounded-soft border border-neutral-300 dark:border-neutral-600 px-6 py-2.5 text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 flex items-center">
+        Cancel
+      </a>
+    </div>
+  </form>
+</div>
+{% endblock %}

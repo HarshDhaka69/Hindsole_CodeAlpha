@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load products_extras %}
+
+{% block title %}Order {{ order.order_number }} — {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+  <a href="{% url 'orders:history' %}" class="text-fluid-sm text-neutral-500 dark:text-neutral-400 hover:text-accent-500">&larr; Back to orders</a>
+
+  <div class="flex items-center justify-between mt-4 mb-8 flex-wrap gap-2">
+    <h1 class="font-display text-fluid-2xl font-semibold text-neutral-900 dark:text-neutral-50">{{ order.order_number }}</h1>
+    <span class="text-fluid-xs font-medium rounded-full px-3 py-1
+      {% if order.status == 'delivered' %}bg-success-500/10 text-success-600
+      {% elif order.status == 'cancelled' %}bg-error-500/10 text-error-600
+      {% else %}bg-accent-500/10 text-accent-600{% endif %}">
+      {{ order.get_status_display }}
+    </span>
+  </div>
+
+  <div class="rounded-card border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-5 mb-5">
+    <ul class="divide-y divide-neutral-200 dark:divide-neutral-700">
+      {% for item in order.items.all %}
+        <li class="flex justify-between py-3 first:pt-0 last:pb-0 text-fluid-sm">
+          <div>
+            <p class="font-medium text-neutral-900 dark:text-neutral-50">{{ item.product_name }}</p>
+            <p class="text-fluid-xs text-neutral-500 dark:text-neutral-400">{{ item.brand_name }} &middot; {{ item.colorway_name }} &middot; US {{ item.size }} &middot; Qty {{ item.quantity }}</p>
+          </div>
+          <span class="font-medium text-neutral-900 dark:text-neutral-50 shrink-0">{{ item.line_total|currency }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="rounded-card border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-5 mb-5">
+    <h2 class="text-fluid-sm font-semibold text-neutral-900 dark:text-neutral-50 mb-2">Shipped to</h2>
+    <p class="text-fluid-sm text-neutral-600 dark:text-neutral-300">{{ order.shipping_full_name }}</p>
+    <p class="text-fluid-sm text-neutral-600 dark:text-neutral-300">{{ order.shipping_line1 }}{% if order.shipping_line2 %}, {{ order.shipping_line2 }}{% endif %}</p>
+    <p class="text-fluid-sm text-neutral-600 dark:text-neutral-300">{{ order.shipping_city }}, {{ order.shipping_state }} {{ order.shipping_postal_code }}</p>
+    <p class="text-fluid-sm text-neutral-600 dark:text-neutral-300">{{ order.shipping_country }}</p>
+  </div>
+
+  <div class="rounded-card border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-5 space-y-2 text-fluid-sm">
+    <div class="flex justify-between text-neutral-600 dark:text-neutral-300"><span>Subtotal</span><span>{{ order.subtotal|currency }}</span></div>
+    <div class="flex justify-between text-neutral-600 dark:text-neutral-300"><span>Shipping</span><span>{% if order.shipping_cost == 0 %}Free{% else %}{{ order.shipping_cost|currency }}{% endif %}</span></div>
+    <div class="flex justify-between text-neutral-600 dark:text-neutral-300"><span>Tax</span><span>{{ order.tax|currency }}</span></div>
+    <div class="flex justify-between text-fluid-base font-semibold text-neutral-900 dark:text-neutral-50 pt-2 border-t border-neutral-200 dark:border-neutral-700">
+      <span>Total</span><span>{{ order.total|currency }}</span>
+    </div>
+  </div>
+</div>
+{% endblock %}

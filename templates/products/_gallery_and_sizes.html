@@ -1,0 +1,133 @@
+{% load products_extras %}
+<div id="pdp-gallery-and-sizes" x-data="{ activeImage: 0, zoomed: false }">
+
+  <!-- GALLERY: Bottega-style large zoomable imagery, swipeable on mobile -->
+  <div class="lg:grid lg:grid-cols-[80px_1fr] lg:gap-4">
+
+    <!-- Desktop thumbnail rail -->
+    <div class="hidden lg:flex lg:flex-col gap-3 order-2 lg:order-1">
+      {% for img in gallery_images %}
+        <button
+          @click="activeImage = {{ forloop.counter0 }}"
+          class="rounded-soft overflow-hidden border-2 transition-colors aspect-square"
+          :class="activeImage === {{ forloop.counter0 }} ? 'border-accent-500' : 'border-transparent'"
+        >
+          <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:product.name }}" class="h-full w-full object-cover" loading="lazy">
+        </button>
+      {% endfor %}
+    </div>
+
+    <!-- Main image / mobile swipe gallery -->
+    <div class="order-1 lg:order-2 relative">
+      <!-- Mobile: swipeable horizontal scroll -->
+      <div class="gallery-swipe rounded-card overflow-hidden lg:hidden aspect-square bg-neutral-100 dark:bg-neutral-800">
+        {% for img in gallery_images %}
+          <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:product.name }}" class="h-full w-full object-cover" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
+        {% empty %}
+          <div class="h-full w-full flex items-center justify-center text-neutral-400">No image available</div>
+        {% endfor %}
+      </div>
+
+      <!-- Desktop: single zoomable image, pinch/click-to-zoom -->
+      <div
+        class="hidden lg:block relative rounded-card overflow-hidden bg-neutral-100 dark:bg-neutral-800 aspect-square cursor-zoom-in"
+        @click="zoomed = !zoomed"
+        @touchstart.passive="zoomed = !zoomed"
+      >
+        {% for img in gallery_images %}
+          <img
+            x-show="activeImage === {{ forloop.counter0 }}"
+            src="{{ img.image.url }}"
+            alt="{{ img.alt_text|default:product.name }}"
+            class="h-full w-full object-cover transition-transform duration-350"
+            :class="zoomed && activeImage === {{ forloop.counter0 }} ? 'scale-150' : 'scale-100'"
+            loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+          >
+        {% empty %}
+          <div class="h-full w-full flex items-center justify-center text-neutral-400">No image available</div>
+        {% endfor %}
+      </div>
+
+      <!-- Mobile dot indicators -->
+      {% if gallery_images|length > 1 %}
+      <div class="flex lg:hidden justify-center gap-1.5 mt-3">
+        {% for img in gallery_images %}
+          <span class="h-1.5 w-1.5 rounded-full bg-neutral-300 dark:bg-neutral-600"></span>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- COLORWAY SWITCHER -->
+  {% if colorways|length > 1 %}
+  <div class="mt-6">
+    <p class="text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-2">
+      Colorway: <span class="font-semibold text-neutral-900 dark:text-neutral-50">{{ selected_colorway }}</span>
+    </p>
+    <div class="flex flex-wrap gap-2">
+      {% for colorway in colorways %}
+        <button
+          hx-get="{% url 'products:gallery_partial' product.slug %}?colorway={{ colorway|urlencode }}"
+          hx-target="#pdp-gallery-and-sizes"
+          hx-swap="outerHTML"
+          class="tap-target rounded-full border px-4 text-fluid-sm font-medium transition-colors
+            {% if colorway == selected_colorway %}border-accent-500 bg-accent-500 text-white{% else %}border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-200{% endif %}"
+        >
+          {{ colorway }}
+        </button>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- SIZE GRID — signature element: stock state is structural, not a separate text list -->
+  <div class="mt-7" id="size-selector" x-data="{ selectedVariant: null }">
+    <div class="flex items-baseline justify-between mb-2">
+      <p class="text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200">Select size (US)</p>
+      <a href="#size-guide" class="text-fluid-xs text-neutral-500 dark:text-neutral-400 underline">Size guide</a>
+    </div>
+
+    <div class="grid grid-cols-4 sm:grid-cols-5 gap-2">
+      {% for variant in variants_for_colorway %}
+        <label class="relative">
+          <input
+            type="radio"
+            name="variant_id"
+            value="{{ variant.id }}"
+            {% if not variant.in_stock %}disabled{% endif %}
+            {% if default_size == variant.size and variant.in_stock %}checked{% endif %}
+            class="peer sr-only"
+            @change="selectedVariant = {{ variant.id }}"
+          >
+          <span
+            class="flex flex-col items-center justify-center h-14 rounded-soft border text-fluid-sm font-medium transition-colors
+              {% if variant.in_stock %}
+                border-neutral-300 dark:border-neutral-600 text-neutral-800 dark:text-neutral-100 cursor-pointer
+                peer-checked:bg-accent-500 peer-checked:text-white peer-checked:border-accent-500
+                peer-focus-visible:ring-2 peer-focus-visible:ring-accent-400
+              {% else %}
+                border-neutral-200 dark:border-neutral-700 text-neutral-400 dark:text-neutral-600 line-through cursor-not-allowed bg-neutral-100/60 dark:bg-neutral-800/40
+              {% endif %}"
+          >
+            {{ variant.size }}
+            {% if variant.is_low_stock %}
+              <span class="h-1.5 w-1.5 rounded-full bg-accent-500 mt-0.5"></span>
+            {% endif %}
+          </span>
+        </label>
+      {% empty %}
+        <p class="col-span-full text-fluid-sm text-neutral-500 dark:text-neutral-400">No sizes available for this colorway.</p>
+      {% endfor %}
+    </div>
+
+    <!-- Urgency copy, driven by whichever variant is selected -->
+    {% for variant in variants_for_colorway %}
+      {% if variant.is_low_stock %}
+        <p x-show="selectedVariant === {{ variant.id }}" class="mt-2 text-fluid-xs font-medium text-accent-600">
+          Only {{ variant.stock_quantity }} left in size {{ variant.size }}
+        </p>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>

@@ -1,0 +1,38 @@
+{% load products_extras %}
+<div class="rounded-card border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-5 lg:p-6">
+  <h2 class="text-fluid-base font-semibold text-neutral-900 dark:text-neutral-50 mb-4">Order Summary</h2>
+
+  {% if cart and cart.items_qs %}
+    <div class="space-y-2.5 text-fluid-sm">
+      <div class="flex justify-between text-neutral-600 dark:text-neutral-300">
+        <span>Subtotal</span>
+        <span>{{ cart.subtotal|currency }}</span>
+      </div>
+      <div class="flex justify-between text-neutral-600 dark:text-neutral-300">
+        <span>Shipping</span>
+        <span>{% if cart.shipping_cost == 0 %}Free{% else %}{{ cart.shipping_cost|currency }}{% endif %}</span>
+      </div>
+      <div class="flex justify-between text-neutral-600 dark:text-neutral-300">
+        <span>Estimated tax</span>
+        <span>{{ cart.tax|currency }}</span>
+      </div>
+    </div>
+
+    {% if cart.shipping_cost > 0 %}
+      <p class="mt-3 text-fluid-xs text-accent-600 bg-accent-50 dark:bg-accent-900/20 rounded-soft px-3 py-2">
+        Add {{ FREE_SHIPPING_THRESHOLD }} to qualify for free shipping
+      </p>
+    {% endif %}
+
+    <div class="flex justify-between text-fluid-base font-semibold text-neutral-900 dark:text-neutral-50 mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-700">
+      <span>Total</span>
+      <span>{{ cart.total|currency }}</span>
+    </div>
+
+    <a href="{% url 'orders:checkout_shipping' %}" class="mt-5 block w-full text-center rounded-soft bg-accent-500 hover:bg-accent-600 text-white font-semibold py-3.5 text-fluid-base transition-colors">
+      Proceed to Checkout
+    </a>
+  {% else %}
+    <p class="text-fluid-sm text-neutral-500 dark:text-neutral-400">Add something to your bag to see a summary.</p>
+  {% endif %}
+</div>

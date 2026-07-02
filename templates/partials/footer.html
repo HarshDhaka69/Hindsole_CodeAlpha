@@ -1,0 +1,49 @@
+<footer class="bg-neutral-900 dark:bg-neutral-950 text-neutral-300 mt-16 pb-safe-bottom">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+      <div class="col-span-2 lg:col-span-1">
+        <span class="font-display text-fluid-xl font-semibold text-white">HINDSOLE</span>
+        <p class="mt-3 text-fluid-sm text-neutral-400 max-w-xs">Every step, in hindsight.</p>
+      </div>
+
+      <div>
+        <h3 class="text-fluid-xs font-semibold uppercase tracking-wide text-neutral-500 mb-3">Shop</h3>
+        <ul class="space-y-2 text-fluid-sm">
+          <li><a href="{% url 'products:list' %}?tag=limited-drop" class="hover:text-accent-400">New Drops</a></li>
+          <li><a href="{% url 'products:list' %}" class="hover:text-accent-400">Shop All</a></li>
+          {% for category in nav_categories %}
+          <li><a href="{% url 'products:list' %}?category={{ category.slug }}" class="hover:text-accent-400">{{ category.name }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-fluid-xs font-semibold uppercase tracking-wide text-neutral-500 mb-3">Account</h3>
+        <ul class="space-y-2 text-fluid-sm">
+          {% if user.is_authenticated %}
+            <li><a href="{% url 'accounts:profile' %}" class="hover:text-accent-400">My account</a></li>
+            <li><a href="{% url 'orders:history' %}" class="hover:text-accent-400">Order history</a></li>
+          {% else %}
+            <li><a href="{% url 'accounts:login' %}" class="hover:text-accent-400">Sign in</a></li>
+            <li><a href="{% url 'accounts:signup' %}" class="hover:text-accent-400">Create account</a></li>
+          {% endif %}
+          <li><a href="{% url 'cart:view' %}" class="hover:text-accent-400">Your bag</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-fluid-xs font-semibold uppercase tracking-wide text-neutral-500 mb-3">Info</h3>
+        <ul class="space-y-2 text-fluid-sm">
+          <li><a href="#" class="hover:text-accent-400">Shipping & returns</a></li>
+          <li><a href="#" class="hover:text-accent-400">Authenticity guarantee</a></li>
+          <li><a href="#" class="hover:text-accent-400">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-10 pt-6 border-t border-neutral-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-fluid-xs text-neutral-500">
+      <span>&copy; {% now "Y" %} HINDSOLE. All rights reserved.</span>
+      <span>Built for collectors, by collectors.</span>
+    </div>
+  </div>
+</footer>

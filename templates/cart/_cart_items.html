@@ -1,0 +1,57 @@
+{% load products_extras %}
+<div id="cart-items-region">
+  {% if cart and cart.items_qs %}
+    <ul class="divide-y divide-neutral-200 dark:divide-neutral-700">
+      {% for item in cart.items_qs %}
+        <li class="flex gap-4 py-5" id="cart-item-{{ item.id }}">
+          <a href="{{ item.variant.product.get_absolute_url }}" class="h-24 w-24 sm:h-28 sm:w-28 rounded-soft bg-neutral-100 dark:bg-neutral-700 overflow-hidden shrink-0">
+            {% with img=item.variant.product.primary_image %}
+              {% if img %}<img src="{{ img.image.url }}" alt="{{ item.variant.product.name }}" class="h-full w-full object-cover">{% endif %}
+            {% endwith %}
+          </a>
+          <div class="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+            <div class="min-w-0">
+              <a href="{{ item.variant.product.get_absolute_url }}" class="text-fluid-base font-medium text-neutral-900 dark:text-neutral-50 hover:text-accent-500">{{ item.variant.product.name }}</a>
+              <p class="text-fluid-sm text-neutral-500 dark:text-neutral-400 mt-0.5">{{ item.variant.product.brand.name }}</p>
+              <p class="text-fluid-sm text-neutral-500 dark:text-neutral-400">{{ item.variant.colorway_name }} &middot; US {{ item.variant.size }}</p>
+              {% if item.variant.is_low_stock %}
+                <p class="text-fluid-xs font-medium text-accent-600 mt-1">Only {{ item.variant.stock_quantity }} left</p>
+              {% endif %}
+
+              <div class="flex items-center gap-2 mt-3">
+                <button
+                  hx-post="{% url 'cart:update_item' item.id %}" hx-vals='{"action": "decrement", "target": "cart_page"}'
+                  hx-target="#cart-items-region" hx-swap="outerHTML"
+                  class="tap-target h-8 w-8 min-h-0 min-w-0 rounded-soft border border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-300"
+                >&minus;</button>
+                <span class="text-fluid-sm text-neutral-800 dark:text-neutral-100 w-6 text-center">{{ item.quantity }}</span>
+                <button
+                  hx-post="{% url 'cart:update_item' item.id %}" hx-vals='{"action": "increment", "target": "cart_page"}'
+                  hx-target="#cart-items-region" hx-swap="outerHTML"
+                  class="tap-target h-8 w-8 min-h-0 min-w-0 rounded-soft border border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-300"
+                >+</button>
+                <button
+                  hx-post="{% url 'cart:remove_item' item.id %}" hx-vals='{"target": "cart_page"}'
+                  hx-target="#cart-items-region" hx-swap="outerHTML"
+                  class="text-fluid-sm text-neutral-500 dark:text-neutral-400 hover:text-error-500 ml-3"
+                >Remove</button>
+              </div>
+            </div>
+            <span class="text-fluid-base font-semibold text-neutral-900 dark:text-neutral-50 shrink-0">{{ item.line_total|currency }}</span>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="flex flex-col items-center justify-center text-center py-20">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-14 w-14 text-neutral-300 dark:text-neutral-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 1.98-4.694 2.57-7.166.158-.65-.298-1.234-.96-1.234H5.85m1.5 11.4h11.218m-11.218 0a3 3 0 100 6 3 3 0 000-6zm11.218 0a3 3 0 100 6 3 3 0 000-6z" /></svg>
+      <p class="text-fluid-lg font-medium text-neutral-700 dark:text-neutral-200">Your bag is empty</p>
+      <a href="{% url 'products:list' %}" class="mt-4 inline-block rounded-soft bg-accent-500 hover:bg-accent-600 text-white font-semibold px-6 py-3 text-fluid-sm">Continue shopping</a>
+    </div>
+  {% endif %}
+</div>
+
+{# Out-of-band swap: keeps the order summary card in sync whenever this partial is re-rendered via HTMX #}
+<div id="order-summary-region" hx-swap-oob="true">
+  {% include "cart/_order_summary.html" %}
+</div>

@@ -1,0 +1,106 @@
+{% comment %}
+Shared filter form fields, included inside both the desktop sidebar and the mobile bottom sheet wrappers.
+`form_id` must be passed in by the including template so sidebar/sheet instances never collide.
+{% endcomment %}
+<form
+  id="{{ form_id }}"
+  hx-get="{% url 'products:list_grid_partial' %}"
+  hx-target="#product-grid-region"
+  hx-swap="innerHTML"
+  hx-trigger="change, submit"
+  hx-push-url="true"
+  class="space-y-6"
+>
+  {# Hidden field keeps the current sort value in sync so filter changes don't reset it. #}
+  <input type="hidden" name="sort" id="{{ form_id }}-sort-hidden" value="{{ active_sort|default:'newest' }}">
+  <div>
+    <h3 class="text-fluid-sm font-semibold text-neutral-900 dark:text-neutral-50 mb-3">Brand</h3>
+    <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+      {% for brand in brands %}
+        <label class="flex items-center gap-2.5 text-fluid-sm text-neutral-700 dark:text-neutral-300 cursor-pointer">
+          <input type="checkbox" name="brand" value="{{ brand.slug }}"
+            {% if brand.slug in selected_brands %}checked{% endif %}
+            class="h-4 w-4 rounded border-neutral-300 text-accent-500 focus:ring-accent-400">
+          {{ brand.name }}
+        </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if categories %}
+  <div>
+    <h3 class="text-fluid-sm font-semibold text-neutral-900 dark:text-neutral-50 mb-3">Category</h3>
+    <div class="space-y-2">
+      {% for category in categories %}
+        <label class="flex items-center gap-2.5 text-fluid-sm text-neutral-700 dark:text-neutral-300 cursor-pointer">
+          <input type="radio" name="category" value="{{ category.slug }}"
+            {% if category.slug == selected_category %}checked{% endif %}
+            class="h-4 w-4 border-neutral-300 text-accent-500 focus:ring-accent-400">
+          {{ category.name }}
+        </label>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div>
+    <h3 class="text-fluid-sm font-semibold text-neutral-900 dark:text-neutral-50 mb-3">Size (US)</h3>
+    <div class="grid grid-cols-4 gap-2">
+      {% for size in sizes %}
+        <label class="cursor-pointer">
+          <input type="checkbox" name="size" value="{{ size }}" {% if size in selected_sizes %}checked{% endif %} class="peer sr-only">
+          <span class="flex items-center justify-center h-10 rounded-soft border border-neutral-300 dark:border-neutral-600 text-fluid-sm text-neutral-700 dark:text-neutral-300 peer-checked:bg-accent-500 peer-checked:text-white peer-checked:border-accent-500 peer-focus-visible:ring-2 peer-focus-visible:ring-accent-400">
+            {{ size }}
+          </span>
+        </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div>
+    <h3 class="text-fluid-sm font-semibold text-neutral-900 dark:text-neutral-50 mb-3">Colorway</h3>
+    <div class="space-y-2 max-h-40 overflow-y-auto pr-1">
+      {% for colorway in colorways %}
+        <label class="flex items-center gap-2.5 text-fluid-sm text-neutral-700 dark:text-neutral-300 cursor-pointer">
+          <input type="checkbox" name="colorway" value="{{ colorway }}" {% if colorway in selected_colorways %}checked{% endif %} class="h-4 w-4 rounded border-neutral-300 text-accent-500 focus:ring-accent-400">
+          {{ colorway }}
+        </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div>
+    <h3 class="text-fluid-sm font-semibold text-neutral-900 dark:text-neutral-50 mb-3">Price</h3>
+    <div class="flex items-center gap-3">
+      <input type="number" name="price_min" inputmode="numeric" placeholder="Min" value="{{ request.GET.price_min }}"
+        class="w-full rounded-soft border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-fluid-sm">
+      <span class="text-neutral-400">&ndash;</span>
+      <input type="number" name="price_max" inputmode="numeric" placeholder="Max" value="{{ request.GET.price_max }}"
+        class="w-full rounded-soft border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-3 py-2 text-fluid-sm">
+    </div>
+  </div>
+
+  {% if tags %}
+  <div>
+    <h3 class="text-fluid-sm font-semibold text-neutral-900 dark:text-neutral-50 mb-3">Tags</h3>
+    <div class="flex flex-wrap gap-2">
+      {% for tag in tags %}
+        <label class="cursor-pointer">
+          <input type="checkbox" name="tag" value="{{ tag.slug }}" {% if tag.slug in selected_tags %}checked{% endif %} class="peer sr-only">
+          <span class="inline-flex items-center rounded-full border border-neutral-300 dark:border-neutral-600 px-3 py-1.5 text-fluid-xs text-neutral-700 dark:text-neutral-300 peer-checked:bg-accent-500 peer-checked:text-white peer-checked:border-accent-500">
+            {{ tag.name }}
+          </span>
+        </label>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <button
+    type="button"
+    onclick="document.getElementById('{{ form_id }}').reset(); htmx.trigger('#{{ form_id }}', 'submit');"
+    class="w-full text-center text-fluid-sm font-medium text-neutral-500 dark:text-neutral-400 hover:text-accent-500 py-2"
+  >
+    Clear all filters
+  </button>
+</form>

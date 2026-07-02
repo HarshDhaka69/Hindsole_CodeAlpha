@@ -1,0 +1,25 @@
+{% load products_extras %}
+<div id="cart-toast-region" hx-swap-oob="true">
+  <div
+    x-data="{ show: true }"
+    x-show="show"
+    x-init="setTimeout(() => show = false, 4000)"
+    x-transition
+    class="fixed top-20 inset-x-0 z-50 flex flex-col items-center gap-2 px-4 pointer-events-none"
+  >
+    <div
+      class="pointer-events-auto max-w-md w-full rounded-soft shadow-lifted px-4 py-3 text-fluid-sm font-medium flex items-center gap-2
+        {% if is_error %}bg-error-500 text-white{% else %}bg-success-500 text-white{% endif %}"
+    >
+      {% if is_error %}
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>
+      {% else %}
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      {% endif %}
+      <span class="flex-1">{{ toast_message }}</span>
+      <button @click="show = false" class="tap-target shrink-0 -mr-2" aria-label="Dismiss">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+      </button>
+    </div>
+  </div>
+</div>

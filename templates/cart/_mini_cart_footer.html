@@ -1,0 +1,17 @@
+{% load products_extras %}
+<div id="mini-cart-footer" hx-swap-oob="true">
+  {% if cart and cart.items_qs %}
+  <div class="px-5 py-4 border-t border-neutral-200 dark:border-neutral-700 shrink-0 space-y-3">
+    <div class="flex items-center justify-between text-fluid-base font-medium text-neutral-800 dark:text-neutral-100">
+      <span>Subtotal</span>
+      <span>{{ cart.subtotal|currency }}</span>
+    </div>
+    <a href="{% url 'cart:view' %}" class="block w-full text-center rounded-soft border border-neutral-300 dark:border-neutral-600 py-3 text-fluid-sm font-medium text-neutral-800 dark:text-neutral-100">
+      View bag
+    </a>
+    <a href="{% url 'orders:checkout_shipping' %}" class="block w-full text-center rounded-soft bg-accent-500 hover:bg-accent-600 py-3 text-fluid-sm font-semibold text-white">
+      Checkout
+    </a>
+  </div>
+  {% endif %}
+</div>

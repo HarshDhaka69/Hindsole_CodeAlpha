@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" class="{% if dark_mode_enabled %}dark{% endif %}">
+<head>
+  <script>
+    // Runs synchronously (not deferred) so it's set before any deferred
+    // script even starts loading. Pairs with the .js-ready CSS scoping
+    // on .fade-in-up — if Alpine/htmx fail to load or initialize for any
+    // reason, content simply stays visible instead of stuck at opacity-0.
+    document.documentElement.classList.add('js-ready');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block title %}{{ site_name }} — {{ site_tagline }}{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}HINDSOLE is a curated sneaker drop platform for collectors — premium, considered, never a discount outlet.{% endblock %}">
+  <meta name="theme-color" content="#171411">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
+
+  <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+  <script src="https://unpkg.com/@alpinejs/collapse@3.x.x/dist/cdn.min.js" defer></script>
+  <script src="{% static 'js/alpine-components.js' %}" defer></script>
+  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+  <script>
+    // Apply persisted dark-mode preference before paint to avoid flash.
+    if (localStorage.getItem('hindsole-dark') === 'true') {
+      document.documentElement.classList.add('dark');
+    }
+  </script>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body
+  x-data="{ mobileMenuOpen: false, miniCartOpen: false, darkMode: document.documentElement.classList.contains('dark') }"
+  x-init="$watch('darkMode', val => {
+    document.documentElement.classList.toggle('dark', val);
+    localStorage.setItem('hindsole-dark', val);
+    fetch('{% url 'products:toggle_dark_mode' %}', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'enabled=' + val,
+    });
+  })"
+  class="min-h-screen flex flex-col selection:bg-accent-300/40"
+  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+>
+
+  {% include "partials/header.html" %}
+  {% include "partials/mobile_nav.html" %}
+  {% include "partials/mini_cart.html" %}
+
+  <!-- Out-of-band toast target for cart actions (add to bag success/error).
+       Kept separate from Django's messages framework below, since that only
+       renders on full page loads — HTMX partial responses (e.g. add_to_cart,
+       which returns the mini-cart fragment) need a target that already
+       exists in the DOM to swap a toast into via hx-swap-oob. -->
+  <div id="cart-toast-region"></div>
+
+  <main class="flex-1 pt-safe-top">
+    {% include "partials/messages.html" %}
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include "partials/footer.html" %}
+
+  {% block extra_body %}{% endblock %}
+</body>
+</html>

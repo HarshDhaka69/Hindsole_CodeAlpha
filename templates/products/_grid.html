@@ -1,0 +1,37 @@
+{% load products_extras %}
+<div class="flex items-center justify-between mb-4">
+  <p class="text-fluid-sm text-neutral-500 dark:text-neutral-400">{{ paginator.count }} result{{ paginator.count|pluralize }}</p>
+</div>
+
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-5">
+  {% for product in products %}
+    {% include "products/_card.html" %}
+  {% empty %}
+    <div class="col-span-full text-center py-16">
+      <p class="text-fluid-lg font-medium text-neutral-700 dark:text-neutral-200">No sneakers match those filters.</p>
+      <p class="text-fluid-sm text-neutral-500 dark:text-neutral-400 mt-1">Try widening your size or price range.</p>
+    </div>
+  {% endfor %}
+</div>
+
+{% if is_paginated %}
+<div class="flex items-center justify-center gap-2 mt-10">
+  {% if page_obj.has_previous %}
+    <a
+      hx-get="{% url 'products:list_grid_partial' %}?{{ querystring }}&page={{ page_obj.previous_page_number }}"
+      hx-target="#product-grid-region" hx-swap="innerHTML" hx-push-url="{% url 'products:list' %}?{{ querystring }}&page={{ page_obj.previous_page_number }}"
+      href="?{{ querystring }}&page={{ page_obj.previous_page_number }}"
+      class="tap-target rounded-soft border border-neutral-300 dark:border-neutral-600 px-4 text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200"
+    >Previous</a>
+  {% endif %}
+  <span class="text-fluid-sm text-neutral-500 dark:text-neutral-400 px-2">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+  {% if page_obj.has_next %}
+    <a
+      hx-get="{% url 'products:list_grid_partial' %}?{{ querystring }}&page={{ page_obj.next_page_number }}"
+      hx-target="#product-grid-region" hx-swap="innerHTML" hx-push-url="{% url 'products:list' %}?{{ querystring }}&page={{ page_obj.next_page_number }}"
+      href="?{{ querystring }}&page={{ page_obj.next_page_number }}"
+      class="tap-target rounded-soft border border-neutral-300 dark:border-neutral-600 px-4 text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200"
+    >Next</a>
+  {% endif %}
+</div>
+{% endif %}

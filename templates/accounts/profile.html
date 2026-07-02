@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load products_extras %}
+
+{% block title %}My Account — {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+  <h1 class="font-display text-fluid-3xl font-semibold text-neutral-900 dark:text-neutral-50 mb-8">My Account</h1>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+    <!-- Personal info / saved size -->
+    <section class="rounded-card border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-6">
+      <h2 class="text-fluid-base font-semibold text-neutral-900 dark:text-neutral-50 mb-4">Personal Info</h2>
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <div>
+          <label for="{{ form.first_name.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">First name</label>
+          {{ form.first_name }}
+        </div>
+        <div>
+          <label for="{{ form.last_name.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">Last name</label>
+          {{ form.last_name }}
+        </div>
+        <div>
+          <label for="{{ form.phone_number.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">Phone number</label>
+          {{ form.phone_number }}
+        </div>
+        <div>
+          <label for="{{ form.default_shoe_size.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">
+            Default shoe size (US)
+          </label>
+          {{ form.default_shoe_size }}
+          <p class="text-fluid-xs text-neutral-500 dark:text-neutral-400 mt-1">We'll pre-select this size on product pages.</p>
+        </div>
+        <button type="submit" class="rounded-soft bg-accent-500 hover:bg-accent-600 text-white font-semibold px-6 py-2.5 text-fluid-sm transition-colors">
+          Save changes
+        </button>
+      </form>
+    </section>
+
+    <div class="space-y-8">
+      <!-- Saved addresses -->
+      <section class="rounded-card border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-fluid-base font-semibold text-neutral-900 dark:text-neutral-50">Saved Addresses</h2>
+          <a href="{% url 'accounts:address_add' %}" class="text-fluid-sm font-medium text-accent-500">+ Add</a>
+        </div>
+        {% if addresses %}
+          <ul class="space-y-3">
+            {% for address in addresses %}
+              <li class="rounded-soft border border-neutral-200 dark:border-neutral-700 p-3.5 text-fluid-sm">
+                <div class="flex items-start justify-between gap-2">
+                  <div>
+                    <p class="font-medium text-neutral-900 dark:text-neutral-50">{{ address.full_name }} {% if address.is_default %}<span class="text-fluid-xs text-accent-500">(Default)</span>{% endif %}</p>
+                    <p class="text-neutral-500 dark:text-neutral-400">{{ address.line1 }}{% if address.line2 %}, {{ address.line2 }}{% endif %}</p>
+                    <p class="text-neutral-500 dark:text-neutral-400">{{ address.city }}, {{ address.state }} {{ address.postal_code }}</p>
+                  </div>
+                  <div class="flex flex-col gap-1 text-fluid-xs shrink-0">
+                    <a href="{% url 'accounts:address_edit' address.pk %}" class="text-accent-500">Edit</a>
+                    <form method="post" action="{% url 'accounts:address_delete' address.pk %}">
+                      {% csrf_token %}
+                      <button type="submit" class="text-neutral-400 hover:text-error-500">Delete</button>
+                    </form>
+                  </div>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-fluid-sm text-neutral-500 dark:text-neutral-400">No saved addresses yet.</p>
+        {% endif %}
+      </section>
+
+      <!-- Order history preview -->
+      <section class="rounded-card border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-fluid-base font-semibold text-neutral-900 dark:text-neutral-50">Recent Orders</h2>
+          <a href="{% url 'orders:history' %}" class="text-fluid-sm font-medium text-accent-500">View all</a>
+        </div>
+        {% if recent_orders %}
+          <ul class="space-y-3">
+            {% for order in recent_orders %}
+              <li>
+                <a href="{% url 'orders:detail' order.pk %}" class="flex items-center justify-between text-fluid-sm py-1.5">
+                  <span class="text-neutral-700 dark:text-neutral-200">{{ order.order_number }} &middot; {{ order.created_at|date:"M j, Y" }}</span>
+                  <span class="font-medium text-neutral-900 dark:text-neutral-50">{{ order.total|currency }}</span>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-fluid-sm text-neutral-500 dark:text-neutral-400">No orders yet.</p>
+        {% endif %}
+      </section>
+    </div>
+  </div>
+</div>
+{% endblock %}

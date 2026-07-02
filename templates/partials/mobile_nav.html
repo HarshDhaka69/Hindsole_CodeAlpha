@@ -1,0 +1,83 @@
+<!-- Mobile nav: full-screen slide-in panel, only relevant below lg (mega-menu takes over above lg) -->
+<div
+  x-show="mobileMenuOpen"
+  x-cloak
+  class="lg:hidden fixed inset-0 z-50"
+  style="display: none;"
+>
+  <!-- Backdrop -->
+  <div
+    x-show="mobileMenuOpen"
+    x-transition:enter="transition-opacity duration-300"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition-opacity duration-200"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    @click="mobileMenuOpen = false"
+    class="absolute inset-0 bg-neutral-900/50"
+  ></div>
+
+  <!-- Panel -->
+  <div
+    x-show="mobileMenuOpen"
+    x-transition:enter="transition-transform duration-300 ease-out"
+    x-transition:enter-start="-translate-x-full"
+    x-transition:enter-end="translate-x-0"
+    x-transition:leave="transition-transform duration-200 ease-in"
+    x-transition:leave-start="translate-x-0"
+    x-transition:leave-end="-translate-x-full"
+    class="absolute left-0 top-0 h-full w-[85%] max-w-sm bg-neutral-50 dark:bg-neutral-900 shadow-lifted overflow-y-auto pt-safe-top pb-safe-bottom"
+    @click.outside="mobileMenuOpen = false"
+  >
+    <div class="flex items-center justify-between px-5 h-16 border-b border-neutral-200 dark:border-neutral-700">
+      <span class="font-display text-fluid-lg font-semibold text-neutral-900 dark:text-neutral-50">HINDSOLE</span>
+      <button @click="mobileMenuOpen = false" class="tap-target text-neutral-600 dark:text-neutral-300" aria-label="Close menu">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+      </button>
+    </div>
+
+    <nav class="px-5 py-6 flex flex-col gap-1" aria-label="Mobile primary">
+      <a href="{% url 'products:list' %}?tag=limited-drop" class="py-3 text-fluid-lg font-medium text-accent-500">New Drops</a>
+      <a href="{% url 'products:list' %}" class="py-3 text-fluid-lg font-medium text-neutral-800 dark:text-neutral-100">Shop All</a>
+
+      <div x-data="{ open: false }" class="border-t border-neutral-200 dark:border-neutral-700 mt-2 pt-2">
+        <button @click="open = !open" class="w-full flex items-center justify-between py-3 text-fluid-base font-medium text-neutral-800 dark:text-neutral-100">
+          Brands
+          <svg :class="open && 'rotate-180'" class="h-4 w-4 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+        </button>
+        <div x-show="open" x-collapse class="flex flex-col gap-1 pl-3 pb-2">
+          {% for brand in nav_brands %}
+            <a href="{{ brand.get_absolute_url }}" class="py-2 text-fluid-sm text-neutral-600 dark:text-neutral-300">{{ brand.name }}</a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div x-data="{ open: false }" class="border-t border-neutral-200 dark:border-neutral-700 pt-2">
+        <button @click="open = !open" class="w-full flex items-center justify-between py-3 text-fluid-base font-medium text-neutral-800 dark:text-neutral-100">
+          Categories
+          <svg :class="open && 'rotate-180'" class="h-4 w-4 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+        </button>
+        <div x-show="open" x-collapse class="flex flex-col gap-1 pl-3 pb-2">
+          {% for category in nav_categories %}
+            <a href="{% url 'products:list' %}?category={{ category.slug }}" class="py-2 text-fluid-sm text-neutral-600 dark:text-neutral-300">{{ category.name }}</a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="border-t border-neutral-200 dark:border-neutral-700 mt-2 pt-4">
+        {% if user.is_authenticated %}
+          <a href="{% url 'accounts:profile' %}" class="py-3 block text-fluid-base font-medium text-neutral-800 dark:text-neutral-100">My account</a>
+          <a href="{% url 'orders:history' %}" class="py-3 block text-fluid-base font-medium text-neutral-800 dark:text-neutral-100">Order history</a>
+          <form method="post" action="{% url 'accounts:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="py-3 text-fluid-base font-medium text-neutral-500 dark:text-neutral-400">Sign out</button>
+          </form>
+        {% else %}
+          <a href="{% url 'accounts:login' %}" class="py-3 block text-fluid-base font-medium text-neutral-800 dark:text-neutral-100">Sign in</a>
+          <a href="{% url 'accounts:signup' %}" class="py-3 block text-fluid-base font-medium text-accent-500">Create account</a>
+        {% endif %}
+      </div>
+    </nav>
+  </div>
+</div>

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load products_extras %}
+
+{% block title %}Checkout — Review — {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-lg px-4 sm:px-6 py-8 lg:py-12">
+
+  <div class="flex items-center gap-2 text-fluid-xs text-neutral-500 dark:text-neutral-400 mb-6">
+    <a href="{% url 'orders:checkout_shipping' %}" class="text-neutral-500 dark:text-neutral-400">1. Shipping</a>
+    <span>&rarr;</span>
+    <span class="text-accent-500 font-semibold">2. Review</span>
+    <span>&rarr;</span>
+    <span>3. Confirmation</span>
+  </div>
+
+  <h1 class="font-display text-fluid-2xl font-semibold text-neutral-900 dark:text-neutral-50 mb-6">Review Your Order</h1>
+
+  <!-- Items -->
+  <div class="rounded-card border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-5 mb-5">
+    <ul class="divide-y divide-neutral-200 dark:divide-neutral-700">
+      {% for item in cart.items_qs %}
+        <li class="flex gap-3 py-3 first:pt-0 last:pb-0">
+          <div class="h-16 w-16 rounded-soft bg-neutral-100 dark:bg-neutral-700 overflow-hidden shrink-0">
+            {% with img=item.variant.product.primary_image %}
+              {% if img %}<img src="{{ img.image.url }}" alt="{{ item.variant.product.name }}" class="h-full w-full object-cover">{% endif %}
+            {% endwith %}
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-fluid-sm font-medium text-neutral-900 dark:text-neutral-50 truncate">{{ item.variant.product.name }}</p>
+            <p class="text-fluid-xs text-neutral-500 dark:text-neutral-400">{{ item.variant.colorway_name }} &middot; US {{ item.variant.size }} &middot; Qty {{ item.quantity }}</p>
+          </div>
+          <span class="text-fluid-sm font-medium text-neutral-900 dark:text-neutral-50 shrink-0">{{ item.line_total|currency }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Shipping summary -->
+  <div class="rounded-card border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-5 mb-5">
+    <div class="flex items-center justify-between mb-2">
+      <h2 class="text-fluid-sm font-semibold text-neutral-900 dark:text-neutral-50">Shipping to</h2>
+      <a href="{% url 'orders:checkout_shipping' %}" class="text-fluid-xs text-accent-500 font-medium">Edit</a>
+    </div>
+    <p class="text-fluid-sm text-neutral-600 dark:text-neutral-300">{{ shipping_data.shipping_full_name }}</p>
+    <p class="text-fluid-sm text-neutral-600 dark:text-neutral-300">{{ shipping_data.shipping_line1 }}{% if shipping_data.shipping_line2 %}, {{ shipping_data.shipping_line2 }}{% endif %}</p>
+    <p class="text-fluid-sm text-neutral-600 dark:text-neutral-300">{{ shipping_data.shipping_city }}, {{ shipping_data.shipping_state }} {{ shipping_data.shipping_postal_code }}</p>
+    <p class="text-fluid-sm text-neutral-600 dark:text-neutral-300">{{ shipping_data.shipping_country }}</p>
+  </div>
+
+  <!-- Totals -->
+  <div class="rounded-card border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-5 mb-6 space-y-2 text-fluid-sm">
+    <div class="flex justify-between text-neutral-600 dark:text-neutral-300"><span>Subtotal</span><span>{{ cart.subtotal|currency }}</span></div>
+    <div class="flex justify-between text-neutral-600 dark:text-neutral-300"><span>Shipping</span><span>{% if cart.shipping_cost == 0 %}Free{% else %}{{ cart.shipping_cost|currency }}{% endif %}</span></div>
+    <div class="flex justify-between text-neutral-600 dark:text-neutral-300"><span>Tax</span><span>{{ cart.tax|currency }}</span></div>
+    <div class="flex justify-between text-fluid-base font-semibold text-neutral-900 dark:text-neutral-50 pt-2 border-t border-neutral-200 dark:border-neutral-700">
+      <span>Total</span><span>{{ cart.total|currency }}</span>
+    </div>
+  </div>
+
+  <!-- Mock payment notice -->
+  <div class="rounded-soft bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-4 py-3 mb-6 text-fluid-xs text-neutral-500 dark:text-neutral-400">
+    This is a demo checkout — no real payment will be charged. A production deployment would integrate Stripe here (see README).
+  </div>
+
+  <form method="post" x-data="{ submitting: false }" @submit="submitting = true">
+    {% csrf_token %}
+    <button
+      type="submit"
+      :disabled="submitting"
+      :class="submitting ? 'opacity-60 cursor-not-allowed' : ''"
+      class="w-full rounded-soft bg-accent-500 hover:bg-accent-600 text-white font-semibold py-3.5 text-fluid-base transition-colors"
+    >
+      <span x-show="!submitting">Place Order — {{ cart.total|currency }}</span>
+      <span x-show="submitting" x-cloak>Placing order…</span>
+    </button>
+  </form>
+</div>
+{% endblock %}

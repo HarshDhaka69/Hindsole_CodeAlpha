@@ -1,0 +1,47 @@
+{% extends "accounts/_auth_shell.html" %}
+
+{% block title %}Create Account — {{ site_name }}{% endblock %}
+
+{% block auth_content %}
+<h1 class="text-fluid-xl font-semibold text-neutral-900 dark:text-neutral-50 mb-1">Create your account</h1>
+<p class="text-fluid-sm text-neutral-500 dark:text-neutral-400 mb-6">Track your drops, save your size.</p>
+
+<form method="post" class="space-y-4">
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="rounded-soft bg-error-500/10 text-error-600 text-fluid-sm px-3 py-2">{{ form.non_field_errors }}</div>
+  {% endif %}
+
+  <div>
+    <label for="{{ form.first_name.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">First name</label>
+    {{ form.first_name }}
+  </div>
+
+  <div>
+    <label for="{{ form.email.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">Email</label>
+    {{ form.email }}
+    {% for error in form.email.errors %}<p class="text-fluid-xs text-error-500 mt-1">{{ error }}</p>{% endfor %}
+  </div>
+
+  <div>
+    <label for="{{ form.password1.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">Password</label>
+    {{ form.password1 }}
+    {% for error in form.password1.errors %}<p class="text-fluid-xs text-error-500 mt-1">{{ error }}</p>{% endfor %}
+  </div>
+
+  <div>
+    <label for="{{ form.password2.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">Confirm password</label>
+    {{ form.password2 }}
+    {% for error in form.password2.errors %}<p class="text-fluid-xs text-error-500 mt-1">{{ error }}</p>{% endfor %}
+  </div>
+
+  <button type="submit" class="w-full rounded-soft bg-accent-500 hover:bg-accent-600 text-white font-semibold py-3 text-fluid-sm transition-colors">
+    Create account
+  </button>
+</form>
+
+<p class="text-center text-fluid-sm text-neutral-500 dark:text-neutral-400 mt-6">
+  Already have an account? <a href="{% url 'accounts:login' %}" class="text-accent-500 font-medium">Sign in</a>
+</p>
+{% endblock %}

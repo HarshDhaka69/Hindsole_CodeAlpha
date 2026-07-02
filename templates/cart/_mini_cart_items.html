@@ -1,0 +1,68 @@
+{% load products_extras %}
+{% if cart and cart.items_qs %}
+  <ul class="space-y-4">
+    {% for item in cart.items_qs %}
+      <li class="flex gap-3" id="mini-cart-item-{{ item.id }}">
+        <div class="h-20 w-20 rounded-soft bg-neutral-100 dark:bg-neutral-700 overflow-hidden shrink-0">
+          {% with img=item.variant.product.primary_image %}
+            {% if img %}
+              <img src="{{ img.image.url }}" alt="{{ item.variant.product.name }}" class="h-full w-full object-cover">
+            {% endif %}
+          {% endwith %}
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-fluid-sm font-medium text-neutral-900 dark:text-neutral-50 truncate">{{ item.variant.product.name }}</p>
+          <p class="text-fluid-xs text-neutral-500 dark:text-neutral-400">{{ item.variant.colorway_name }} &middot; US {{ item.variant.size }}</p>
+          <div class="flex items-center justify-between mt-1.5">
+            <div class="flex items-center gap-2">
+              <button
+                hx-post="{% url 'cart:update_item' item.id %}"
+                hx-vals='{"action": "decrement", "target": "mini_cart"}'
+                hx-target="#mini-cart-body" hx-swap="innerHTML"
+                class="tap-target h-7 w-7 min-h-0 min-w-0 rounded-soft border border-neutral-300 dark:border-neutral-600 text-fluid-sm text-neutral-600 dark:text-neutral-300"
+              >&minus;</button>
+              <span class="text-fluid-sm text-neutral-800 dark:text-neutral-100 w-4 text-center">{{ item.quantity }}</span>
+              <button
+                hx-post="{% url 'cart:update_item' item.id %}"
+                hx-vals='{"action": "increment", "target": "mini_cart"}'
+                hx-target="#mini-cart-body" hx-swap="innerHTML"
+                class="tap-target h-7 w-7 min-h-0 min-w-0 rounded-soft border border-neutral-300 dark:border-neutral-600 text-fluid-sm text-neutral-600 dark:text-neutral-300"
+              >+</button>
+            </div>
+            <span class="text-fluid-sm font-semibold text-neutral-900 dark:text-neutral-50">{{ item.line_total|currency }}</span>
+          </div>
+        </div>
+        <button
+          hx-post="{% url 'cart:remove_item' item.id %}"
+          hx-vals='{"target": "mini_cart"}'
+          hx-target="#mini-cart-body" hx-swap="innerHTML"
+          class="tap-target shrink-0 text-neutral-400 hover:text-error-500 self-start"
+          aria-label="Remove item"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <div class="flex flex-col items-center justify-center text-center py-16">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-neutral-300 dark:text-neutral-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 1.98-4.694 2.57-7.166.158-.65-.298-1.234-.96-1.234H5.85m1.5 11.4h11.218m-11.218 0a3 3 0 100 6 3 3 0 000-6zm11.218 0a3 3 0 100 6 3 3 0 000-6z" /></svg>
+    <p class="text-fluid-base font-medium text-neutral-700 dark:text-neutral-200">Your bag is empty</p>
+    <p class="text-fluid-sm text-neutral-500 dark:text-neutral-400 mt-1">Find your next pair in New Drops.</p>
+  </div>
+{% endif %}
+
+{# OOB swap: keep the header cart badge quantity in sync after every mini-cart action #}
+<span
+  id="cart-badge"
+  hx-swap-oob="true"
+  class="{% if not cart or cart.total_quantity == 0 %}hidden{% endif %} absolute -top-1.5 -right-1.5 flex items-center justify-center h-5 w-5 rounded-full bg-accent-500 text-white text-[11px] font-semibold leading-none"
+>{{ cart.total_quantity }}</span>
+
+{# OOB swap: keep the mini-cart footer (subtotal + checkout buttons) in sync.
+   This block lives outside #mini-cart-body in mini_cart.html, so without
+   this OOB swap it would only ever reflect whatever the cart looked like
+   on the page's initial full load — e.g. permanently empty after the very
+   first add-to-cart on a fresh session, since nothing would ever tell it
+   to re-render. #}
+{% include "cart/_mini_cart_footer.html" %}

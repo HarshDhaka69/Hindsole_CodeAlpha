@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load products_extras %}
+
+{% block content %}
+
+<!-- BENTO HERO GRID
+     Desktop: 4-col grid, hero spans 2x2. Tablet: 2-col. Mobile: single
+     column stack, hero tile first by DOM order (no JS reordering needed). -->
+<section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6 lg:pt-10">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 lg:auto-rows-[260px]">
+
+    {% if hero_product %}
+    <a href="{{ hero_product.get_absolute_url }}" class="relative rounded-card overflow-hidden bg-neutral-800 col-span-1 sm:col-span-2 lg:col-span-2 lg:row-span-2 min-h-[340px] lg:min-h-0 group">
+      {% with img=hero_product.primary_image %}
+        {% if img %}
+          <img src="{{ img.image.url }}" alt="{{ hero_product.name }}" class="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-350" loading="eager">
+        {% endif %}
+      {% endwith %}
+      <div class="absolute inset-0 bg-gradient-to-t from-neutral-900/80 via-neutral-900/10 to-transparent"></div>
+      <div class="absolute bottom-0 left-0 p-6 lg:p-8">
+        <span class="inline-block rounded-full bg-accent-500 text-white text-fluid-xs font-medium px-3 py-1 mb-3">Featured Drop</span>
+        <h2 class="font-display text-fluid-3xl font-semibold text-white leading-tight max-w-md">{{ hero_product.name }}</h2>
+        <p class="mt-2 text-fluid-base text-neutral-200">{{ hero_product.brand.name }} &middot; {{ hero_product.price|currency }}</p>
+      </div>
+    </a>
+    {% endif %}
+
+    {% for product in bento_products %}
+    <a href="{{ product.get_absolute_url }}" class="relative rounded-card overflow-hidden bg-neutral-200 dark:bg-neutral-700 min-h-[200px] lg:min-h-0 group">
+      {% with img=product.primary_image %}
+        {% if img %}
+          <img src="{{ img.image.url }}" alt="{{ product.name }}" loading="lazy" class="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-350">
+        {% endif %}
+      {% endwith %}
+      <div class="absolute inset-0 bg-gradient-to-t from-neutral-900/70 via-transparent to-transparent"></div>
+      <div class="absolute bottom-0 left-0 p-4 lg:p-5">
+        <p class="text-fluid-sm font-medium text-white">{{ product.name }}</p>
+        <p class="text-fluid-xs text-neutral-300 mt-0.5">{{ product.price|currency }}</p>
+      </div>
+    </a>
+    {% endfor %}
+
+  </div>
+</section>
+
+<!-- NEW DROPS RAIL: Gymshark-style horizontal scroll, swipeable on touch -->
+<section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-14 lg:mt-20">
+  <div class="flex items-baseline justify-between mb-5">
+    <h2 class="font-display text-fluid-2xl font-semibold text-neutral-900 dark:text-neutral-50">New Drops</h2>
+    <a href="{% url 'products:list' %}?sort=newest" class="text-fluid-sm font-medium text-accent-500 hover:text-accent-600 whitespace-nowrap">Shop all &rarr;</a>
+  </div>
+
+  <div class="scroll-rail -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+    {% for product in new_drops %}
+      <div class="w-[220px] sm:w-[250px] shrink-0">
+        {% include "products/_card.html" %}
+      </div>
+    {% empty %}
+      <p class="text-neutral-500 dark:text-neutral-400 text-fluid-sm">No drops yet — check back soon.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- BRAND STRIP -->
+{% if brands %}
+<section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-14 lg:mt-20 mb-16 lg:mb-24">
+  <h2 class="font-display text-fluid-2xl font-semibold text-neutral-900 dark:text-neutral-50 mb-5">Shop by Brand</h2>
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    {% for brand in brands %}
+      <a href="{{ brand.get_absolute_url }}" class="rounded-soft border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 py-6 px-3 flex items-center justify-center text-center hover:border-accent-400 transition-colors">
+        {% if brand.logo %}
+          <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="h-8 max-w-full object-contain">
+        {% else %}
+          <span class="text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200">{{ brand.name }}</span>
+        {% endif %}
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}

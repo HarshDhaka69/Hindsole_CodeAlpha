@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load products_extras %}
+
+{% block title %}Order Confirmed — {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-lg px-4 sm:px-6 py-12 lg:py-16 text-center">
+  <div class="mx-auto h-16 w-16 rounded-full bg-success-500/10 flex items-center justify-center mb-5">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-success-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+  </div>
+
+  <h1 class="font-display text-fluid-2xl font-semibold text-neutral-900 dark:text-neutral-50 mb-2">Order confirmed</h1>
+  <p class="text-fluid-sm text-neutral-500 dark:text-neutral-400 mb-8">
+    Order <span class="font-medium text-neutral-800 dark:text-neutral-100">{{ order.order_number }}</span> &middot; confirmation sent to {{ order.contact_email }}
+  </p>
+
+  <div class="rounded-card border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-5 text-left mb-6">
+    <ul class="divide-y divide-neutral-200 dark:divide-neutral-700">
+      {% for item in order.items.all %}
+        <li class="flex justify-between py-2.5 first:pt-0 last:pb-0 text-fluid-sm">
+          <span class="text-neutral-700 dark:text-neutral-200">{{ item.quantity }} &times; {{ item.product_name }} ({{ item.colorway_name }}, US {{ item.size }})</span>
+          <span class="font-medium text-neutral-900 dark:text-neutral-50">{{ item.line_total|currency }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+    <div class="flex justify-between text-fluid-base font-semibold text-neutral-900 dark:text-neutral-50 pt-3 mt-3 border-t border-neutral-200 dark:border-neutral-700">
+      <span>Total</span><span>{{ order.total|currency }}</span>
+    </div>
+  </div>
+
+  <a href="{% url 'products:list' %}" class="inline-block rounded-soft bg-accent-500 hover:bg-accent-600 text-white font-semibold px-8 py-3 text-fluid-sm">
+    Continue shopping
+  </a>
+</div>
+{% endblock %}

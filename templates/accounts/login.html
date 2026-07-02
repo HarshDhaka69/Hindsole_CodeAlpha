@@ -1,0 +1,48 @@
+{% extends "accounts/_auth_shell.html" %}
+
+{% block title %}Sign In — {{ site_name }}{% endblock %}
+
+{% block auth_content %}
+<h1 class="text-fluid-xl font-semibold text-neutral-900 dark:text-neutral-50 mb-1">Welcome back</h1>
+<p class="text-fluid-sm text-neutral-500 dark:text-neutral-400 mb-6">Sign in to continue.</p>
+
+<form method="post" class="space-y-4">
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="rounded-soft bg-error-500/10 text-error-600 text-fluid-sm px-3 py-2">
+      {{ form.non_field_errors }}
+    </div>
+  {% endif %}
+
+  <div>
+    <label for="{{ form.username.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">Email</label>
+    <input
+      type="email" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}"
+      autocomplete="email" inputmode="email" required autofocus
+      class="w-full rounded-soft border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-4 py-2.5 text-fluid-sm text-neutral-900 dark:text-neutral-50"
+    >
+  </div>
+
+  <div>
+    <label for="{{ form.password.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">Password</label>
+    <input
+      type="password" name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}"
+      autocomplete="current-password" required
+      class="w-full rounded-soft border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-4 py-2.5 text-fluid-sm text-neutral-900 dark:text-neutral-50"
+    >
+  </div>
+
+  <div class="flex justify-end">
+    <a href="{% url 'accounts:password_reset' %}" class="text-fluid-xs text-neutral-500 dark:text-neutral-400 hover:text-accent-500">Forgot password?</a>
+  </div>
+
+  <button type="submit" class="w-full rounded-soft bg-accent-500 hover:bg-accent-600 text-white font-semibold py-3 text-fluid-sm transition-colors">
+    Sign in
+  </button>
+</form>
+
+<p class="text-center text-fluid-sm text-neutral-500 dark:text-neutral-400 mt-6">
+  New to HINDSOLE? <a href="{% url 'accounts:signup' %}" class="text-accent-500 font-medium">Create an account</a>
+</p>
+{% endblock %}

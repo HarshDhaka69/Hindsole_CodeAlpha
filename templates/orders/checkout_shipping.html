@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load products_extras %}
+
+{% block title %}Checkout — Shipping — {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-lg px-4 sm:px-6 py-8 lg:py-12">
+
+  <!-- Checkout step indicator -->
+  <div class="flex items-center gap-2 text-fluid-xs text-neutral-500 dark:text-neutral-400 mb-6">
+    <span class="text-accent-500 font-semibold">1. Shipping</span>
+    <span>&rarr;</span>
+    <span>2. Review</span>
+    <span>&rarr;</span>
+    <span>3. Confirmation</span>
+  </div>
+
+  <h1 class="font-display text-fluid-2xl font-semibold text-neutral-900 dark:text-neutral-50 mb-2">Shipping Information</h1>
+  <p class="text-fluid-sm text-neutral-500 dark:text-neutral-400 mb-6">{{ cart.total_quantity }} item{{ cart.total_quantity|pluralize }} &middot; {{ cart.total|currency }} total</p>
+
+  <form method="post" class="space-y-4">
+    {% csrf_token %}
+
+    <div>
+      <label for="{{ form.contact_email.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">{{ form.contact_email.label }}</label>
+      {{ form.contact_email }}
+      {% for error in form.contact_email.errors %}<p class="text-fluid-xs text-error-500 mt-1">{{ error }}</p>{% endfor %}
+    </div>
+
+    <div>
+      <label for="{{ form.shipping_full_name.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">{{ form.shipping_full_name.label }}</label>
+      {{ form.shipping_full_name }}
+    </div>
+
+    <div>
+      <label for="{{ form.shipping_line1.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">{{ form.shipping_line1.label }}</label>
+      {{ form.shipping_line1 }}
+    </div>
+
+    <div>
+      <label for="{{ form.shipping_line2.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">{{ form.shipping_line2.label }} <span class="text-neutral-400">(optional)</span></label>
+      {{ form.shipping_line2 }}
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label for="{{ form.shipping_city.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">{{ form.shipping_city.label }}</label>
+        {{ form.shipping_city }}
+      </div>
+      <div>
+        <label for="{{ form.shipping_state.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">{{ form.shipping_state.label }}</label>
+        {{ form.shipping_state }}
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label for="{{ form.shipping_postal_code.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">{{ form.shipping_postal_code.label }}</label>
+        {{ form.shipping_postal_code }}
+      </div>
+      <div>
+        <label for="{{ form.shipping_country.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">{{ form.shipping_country.label }}</label>
+        {{ form.shipping_country }}
+      </div>
+    </div>
+
+    <div>
+      <label for="{{ form.shipping_phone_number.id_for_label }}" class="block text-fluid-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1.5">{{ form.shipping_phone_number.label }} <span class="text-neutral-400">(optional)</span></label>
+      {{ form.shipping_phone_number }}
+    </div>
+
+    {% if user.is_authenticated %}
+      <label class="flex items-center gap-2.5 text-fluid-sm text-neutral-700 dark:text-neutral-200">
+        {{ form.save_address }} {{ form.save_address.label }}
+      </label>
+    {% endif %}
+
+    <button type="submit" class="w-full rounded-soft bg-accent-500 hover:bg-accent-600 text-white font-semibold py-3.5 text-fluid-base transition-colors mt-2">
+      Continue to Review
+    </button>
+  </form>
+</div>
+{% endblock %}
