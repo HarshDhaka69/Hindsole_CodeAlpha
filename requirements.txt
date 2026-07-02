@@ -1,0 +1,6 @@
+Django>=5.0,<5.1
+django-environ>=0.12
+Pillow>=10.0
+psycopg[binary]>=3.1   # PostgreSQL driver — required only when DATABASE_URL points at Postgres
+gunicorn>=22.0          # production WSGI server (see README deployment notes)
+requests>=2.31          # used by the seed_unsplash_demo management command
