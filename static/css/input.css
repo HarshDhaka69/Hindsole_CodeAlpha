@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  body {
+    @apply bg-neutral-50 text-neutral-800 antialiased;
+    @apply dark:bg-neutral-900 dark:text-neutral-100;
+  }
+
+  /* Respect notches / home-indicator safe areas on supporting devices */
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  ::selection {
+    @apply bg-accent-300/40;
+  }
+
+  /* Required for x-cloak to do anything — Alpine removes this attribute
+     once it finishes initializing, but without this rule the element is
+     visible in the gap between initial render and Alpine's hydration,
+     causing a flash of unstyled/incorrectly-shown content. */
+  [x-cloak] {
+    display: none !important;
+  }
+
+  /* Quiet, consistent focus ring across the whole site (incl. touch-only
+     elements that still need to be operable via keyboard) */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible {
+    @apply outline-none ring-2 ring-accent-400 ring-offset-2 ring-offset-neutral-50 dark:ring-offset-neutral-900;
+  }
+}
+
+@layer components {
+  /* Horizontally-scrolling rails (new drops, related products, mobile
+     swipe galleries) — snap-based, no JS required for the swipe itself */
+  .scroll-rail {
+    @apply flex gap-4 overflow-x-auto pb-2;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .scroll-rail::-webkit-scrollbar {
+    display: none;
+  }
+  .scroll-rail > * {
+    scroll-snap-align: start;
+  }
+
+  .gallery-swipe {
+    @apply flex overflow-x-auto snap-x snap-mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .gallery-swipe::-webkit-scrollbar {
+    display: none;
+  }
+  .gallery-swipe > * {
+    @apply snap-center shrink-0 w-full;
+  }
+
+  /* Skeleton loader block */
+  .skeleton {
+    @apply animate-skeleton-pulse bg-neutral-200 dark:bg-neutral-700 rounded-soft;
+  }
+
+  /* Minimum touch target helper for icon-only buttons */
+  .tap-target {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+
+  /* Scroll-triggered fade-in (paired with Alpine's x-intersect).
+     Visible by default — the animation only kicks in once JS has
+     confirmed it's ready (see the `js-ready` class set in base.html).
+     This way a JS failure of any kind (ad blocker, flaky CDN, a future
+     script-ordering regression) degrades to "content is simply visible"
+     instead of "content is permanently invisible". */
+  .js-ready .fade-in-up {
+    @apply opacity-0 translate-y-2;
+  }
+  .js-ready .fade-in-up.is-visible {
+    @apply animate-fade-in;
+  }
+}
