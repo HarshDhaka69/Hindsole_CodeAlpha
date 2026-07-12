@@ -60,7 +60,7 @@ DEMO_PRODUCT = {
     "brand": "Northbridge",
     "category": "Lifestyle/Casual",
     "silhouette": "low-top",
-    "price": "129.00",
+    "price": "12126.00",
     "compare_at_price": None,
     "tags": ["Retro"],
     "description": (
