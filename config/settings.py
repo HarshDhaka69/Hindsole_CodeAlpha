@@ -140,14 +140,17 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ---------------------------------------------------------------------------
 CART_SESSION_ID = "hindsole_cart"
 TAX_RATE = env.float("TAX_RATE", default=0.08)  # 8% flat demo tax
-FREE_SHIPPING_THRESHOLD = env.float("FREE_SHIPPING_THRESHOLD", default=150.00)
-STANDARD_SHIPPING_COST = env.float("STANDARD_SHIPPING_COST", default=9.00)
+# INR conversion: original USD demo values ($150 / $9) converted at a flat
+# 94 INR/USD rate — ₹14,100 free-shipping threshold, ₹846 standard shipping.
+FREE_SHIPPING_THRESHOLD = env.float("FREE_SHIPPING_THRESHOLD", default=14100.00)
+STANDARD_SHIPPING_COST = env.float("STANDARD_SHIPPING_COST", default=846.00)
 
-# Currency used for display (demo / mock payment, see README for Stripe notes).
+# Currency used for display (demo / mock payment — no live payment gateway
+# is wired up, so this only controls how prices are formatted).
 # NOTE: django-environ treats "$" specially for variable interpolation, so we
 # read the raw value and substitute the symbol ourselves to avoid that footgun.
-_currency_code = env("CURRENCY_SYMBOL", default="USD")
-CURRENCY_SYMBOL = "$" if _currency_code in ("USD", "$") else _currency_code
+_currency_code = env("CURRENCY_SYMBOL", default="INR")
+CURRENCY_SYMBOL = "₹" if _currency_code in ("INR", "₹") else _currency_code
 
 
 # ---------------------------------------------------------------------------
