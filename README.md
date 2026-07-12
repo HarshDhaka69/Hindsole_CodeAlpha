@@ -1,19 +1,60 @@
-# HINDSOLE
+<div align="center">
 
-*Every step, in hindsight.*
+# 👟 HINDSOLE
 
-A premium sneaker drop e-commerce platform built with Django, Tailwind CSS, HTMX, and Alpine.js. A curated catalog for collectors — not a discount outlet.
+### *Every step, in hindsight.*
+
+**A premium sneaker drop e-commerce platform** — a curated catalog for collectors, not a discount outlet.
+
+[![Django](https://img.shields.io/badge/Django-5.0-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Tailwind](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![HTMX](https://img.shields.io/badge/HTMX-1.x-3D72D7?style=for-the-badge&logo=htmx&logoColor=white)](https://htmx.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+
+</div>
 
 ---
 
-## Tech stack
+## ✨ Overview
 
-- **Backend:** Django 5.0 (LTS), Django ORM, custom `User` model (email login)
-- **Database:** PostgreSQL-ready (`JSONField`, indexes) with automatic SQLite fallback for local dev
-- **Frontend:** Django Templates + Tailwind CSS v3 (mobile-first)
-- **Interactivity:** HTMX (cart, filtering, pagination) + Alpine.js (galleries, menus, dark mode, bottom sheets)
+HINDSOLE is a full-stack Django storefront built around the way sneaker retail actually works — per-size, per-colorway stock, a real cart → checkout → order pipeline, and an admin experience built for fast catalog management. Currency is **INR (₹)**, with India as the default shipping locale.
 
-## Project layout
+## 📋 Table of contents
+
+- [Features](#-features)
+- [Tech stack](#-tech-stack)
+- [Project layout](#-project-layout)
+- [Setup](#-setup)
+- [Developing templates + Tailwind](#-working-on-templates--tailwind-together)
+- [Design tokens](#-design-tokens)
+- [Responsiveness testing](#-responsiveness-testing-notes)
+- [Admin notes](#-admin-notes)
+
+---
+
+## 🚀 Features
+
+| | |
+|---|---|
+| 🛍️ **Catalog** | Brands, categories, tags, per-colorway image galleries, size × colorway stock tracking |
+| 🛒 **Cart** | Session + DB-backed cart with seamless anonymous → logged-in merge on login |
+| 💳 **Checkout** | Shipping → review → mock payment → order, with stock locking against oversells |
+| 📦 **Orders** | Full price/size/colorway snapshot per order item, order history, cancellation restock |
+| 🎨 **UI** | Bento-grid homepage, HTMX-instant filtering, Alpine-powered galleries & dark mode |
+| 🔐 **Auth** | Custom email-based `User` model, address book, profile with default shoe size |
+| 🇮🇳 **Locale** | INR pricing, India-first shipping defaults |
+
+## 🛠 Tech stack
+
+| Layer | Choice |
+|---|---|
+| **Backend** | Django 5.0 (LTS) · Django ORM · custom `User` model (email login) |
+| **Database** | PostgreSQL-ready (`JSONField`, indexes) with automatic SQLite fallback for local dev |
+| **Frontend** | Django Templates + Tailwind CSS v3 (mobile-first) |
+| **Interactivity** | HTMX (cart, filtering, pagination) + Alpine.js (galleries, menus, dark mode, bottom sheets) |
+
+## 📁 Project layout
 
 ```
 config/          settings, root urls
@@ -28,7 +69,7 @@ static/js        Alpine helper directives
 
 ---
 
-## Setup
+## ⚙️ Setup
 
 ### 1. Create a virtual environment
 
@@ -73,33 +114,17 @@ python manage.py seed_products       # demo catalog: brands, colorways, sizes, s
 python manage.py createsuperuser
 ```
 
-Optionally, add one more product photographed with real product photography
-(everything else in the seed catalog uses generated placeholder images):
-
-```bash
-python manage.py seed_unsplash_demo  # downloads real photos from Unsplash — needs internet access
-```
-
-This requires outbound internet access to `images.unsplash.com` and won't
-work in network-restricted environments (CI, some sandboxes). Every photo
-it downloads is individually selected from Unsplash's free, commercial-use
-license with no visible brand logos, consistent with this project's use of
-fictional brand names. See the command's docstring
-(`products/management/commands/seed_unsplash_demo.py`) for photo credits
-and licensing details, and pass `--flush` to replace it if you re-run the
-command.
-
 ### 6. Run
 
 ```bash
 python manage.py runserver
 ```
 
-Visit `http://127.0.0.1:8000/` for the storefront and `http://127.0.0.1:8000/admin/` for the catalog admin.
+Visit **`http://127.0.0.1:8000/`** for the storefront and **`http://127.0.0.1:8000/admin/`** for the catalog admin.
 
 ---
 
-## Working on templates + Tailwind together
+## 🎨 Working on templates + Tailwind together
 
 Run these in two terminals while developing:
 
@@ -112,7 +137,7 @@ Tailwind scans every `*.html` under `templates/` (see `tailwind.config.js` → `
 
 ---
 
-## Design tokens
+## 🎨 Design tokens
 
 Defined in `tailwind.config.js` and `static/css/input.css`:
 
@@ -122,7 +147,7 @@ Defined in `tailwind.config.js` and `static/css/input.css`:
 
 ---
 
-## Responsiveness testing notes
+## 📱 Responsiveness testing notes
 
 The brief's breakpoints map onto Tailwind's `screens` config like this:
 
@@ -156,28 +181,16 @@ playwright screenshot --viewport-size=1440,900 http://127.0.0.1:8000/ desktop.pn
 
 ---
 
-## Payment: mock checkout → Stripe upgrade path
-
-Checkout currently uses a **mock payment** (`orders/views.py::checkout_review` creates the `Order` directly with `payment_method="mock_card"` and a fake `payment_reference`). No real money moves.
-
-To wire in real payments later:
-
-1. `pip install stripe`, add `STRIPE_SECRET_KEY` / `STRIPE_PUBLISHABLE_KEY` to `.env` and `settings.py`.
-2. On `checkout_review` GET, create a Stripe `PaymentIntent` for `cart.total` and pass its `client_secret` to the template.
-3. Replace the "Place Order" button with Stripe Elements (or Stripe Checkout redirect); on success, call the existing order-creation code from a webhook (`checkout.session.completed` / `payment_intent.succeeded`) instead of directly from the POST handler, so orders are only created once payment is confirmed server-side.
-4. Store the real `payment_reference` (Stripe's `PaymentIntent` ID) instead of the `MOCK-...` placeholder.
-
----
-
-## Admin notes
+## 🗂 Admin notes
 
 - `Product` admin includes inline editing for both `ProductVariant` (size × colorway × stock) and `ProductImage` (per-colorway gallery) — the two things that change most often for a sneaker catalog.
 - `ProductVariant` is also registered standalone for quick cross-catalog stock audits.
 - Run `python manage.py seed_products --flush` to wipe and regenerate the demo catalog from scratch.
 
-## Known simplifications (by design, for a portfolio/demo scope)
+---
 
-- Seed product images are generated inline (colored SVG placeholders) rather than real photography — swap real images in via the admin's `ProductImage` inline.
-- Because seed images are vector SVGs, `srcset`/multiple resolutions don't apply to them. With real raster photography, add `django-imagekit` (or similar) to generate resized variants on upload and extend `templates/products/_card.html` / `_gallery_and_sizes.html` with `srcset`/`sizes` attributes pointing at those variants.
-- Tax is a flat configurable rate (`TAX_RATE` in `.env`), not jurisdiction-aware.
-- Email sending uses Django's console backend by default in development (password reset emails print to the terminal) — configure `EMAIL_BACKEND` / SMTP settings for production.
+<div align="center">
+
+Built with 🧡 as part of the CodeAlpha internship program.
+
+</div>
